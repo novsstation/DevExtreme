@@ -26,7 +26,11 @@ const CLASS = {
     tooltip: 'dx-tooltip',
     tooltipAppointmentItemContentDate: 'dx-tooltip-appointment-item-content-date',
     tooltipAppointmentItemContentSubject: 'dx-tooltip-appointment-item-content-subject',
-    tooltipWrapper: 'dx-tooltip-wrapper'
+    tooltipWrapper: 'dx-tooltip-wrapper',
+    tooltipDeleteButton: 'dx-tooltip-appointment-item-delete-button',
+
+    dialog: 'dx-dialog.dx-popup',
+    dialogButton: `dx-dialog-button`
 };
 
 class Appointment {
@@ -36,8 +40,9 @@ class Appointment {
     size: { width: Promise<string>, height: Promise<string> };
     isFocused: Promise<boolean>;
 
-    constructor(scheduler: Selector, title: string, index: number = 0) {
-        this.element = scheduler.find(`.${CLASS.appointment}`).withAttribute('title', title).nth(index);
+    constructor(scheduler: Selector, index: number = 0, title?: string) {
+        const element = scheduler.find(`.${CLASS.appointment}`);
+        this.element = (title ? element.withAttribute('title', title) : element).nth(index);
 
         const appointmentContentDate = this.element.find(`.${CLASS.appointmentContentDate}`);
 
@@ -62,12 +67,14 @@ class Appointment {
     }
 }
 
-class AppointmentCollector {
+class AppointmentCollector{
     element: Selector;
     isFocused: Promise<boolean>;
 
-    constructor(scheduler: Selector, title: string, index: number = 0) {
-        this.element = scheduler.find(`.${CLASS.appointmentCollector}`).withText(title).nth(index);
+    constructor(scheduler: Selector, index: number = 0, title?: string) {
+        const element = scheduler.find(`.${CLASS.appointmentCollector}`);
+        this.element = (title ? element.withText(title) : element).nth(index);
+
         this.isFocused = this.element.hasClass(CLASS.stateFocused);
     }
 }
@@ -84,6 +91,18 @@ class AppointmentTooltipListItem {
 
         this.date = this.element.find(`.${CLASS.tooltipAppointmentItemContentDate}`);
         this.subject = this.element.find(`.${CLASS.tooltipAppointmentItemContentSubject}`);
+    }
+}
+
+class AppointmentDialog {
+    element: Selector;
+    series: Selector;
+    appointment: Selector;
+
+    constructor(scheduler: Selector) {
+        this.element = Selector(`.${CLASS.dialog}`);
+        this.series = this.element.find(`.${CLASS.dialogButton}`).nth(0);
+        this.appointment = this.element.find(`.${CLASS.dialogButton}`).nth(1);
     }
 }
 
@@ -121,10 +140,12 @@ class AppointmentPopup {
 
 class AppointmentTooltip {
     element: Selector;
+    deleteElement: Selector;
     wrapper: Selector;
 
     constructor(scheduler: Selector) {
         this.element = scheduler.find(`.${CLASS.tooltip}.${CLASS.appointmentTooltipWrapper}`);
+        this.deleteElement = Selector(`.${CLASS.tooltipDeleteButton}`);
         this.wrapper = Selector(`.${CLASS.tooltipWrapper}.${CLASS.appointmentTooltipWrapper}`);
     }
 
@@ -175,8 +196,12 @@ export default class Scheduler extends Widget {
             top: workSpaceScroll.scrollTop
         };
 
-        this.appointmentTooltip = new AppointmentTooltip(this.element);
         this.appointmentPopup = new AppointmentPopup(this.element);
+        this.appointmentTooltip = new AppointmentTooltip(this.element);
+    }
+
+    getDialog() {
+        return new AppointmentDialog(this.element);
     }
 
     getDateTableCell(rowIndex: number = 0, cellIndex: number = 0): Selector {
@@ -184,10 +209,26 @@ export default class Scheduler extends Widget {
     }
 
     getAppointment(title: string, index: number = 0): Appointment {
-        return new Appointment(this.element, title, index);
+        return new Appointment(this.element, index, title);
     }
 
     getAppointmentCollector(title: string, index: number = 0): AppointmentCollector {
-        return new AppointmentCollector(this.element, title, index);
+        return new AppointmentCollector(this.element, index, title);
+    }
+
+    getAppointmentByIndex(index: number = 0): Appointment {
+        return new Appointment(this.element, index);
+    }
+
+    getAppointmentCollectorByIndex(index: number = 0): AppointmentCollector {
+        return new AppointmentCollector(this.element, index);
+    }
+
+    getAppointmentCount() {
+        return this.element.find(`.${CLASS.appointment}`).count;
+    }
+
+    getAppointmentCollectorCount() {
+        return this.element.find(`.${CLASS.appointmentCollector}`).count;
     }
 };

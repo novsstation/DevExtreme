@@ -121,7 +121,7 @@ QUnit.module("Markup", moduleConfig, () => {
         this.clock.tick();
         const treeListRowElement = this.$element.find(TREELIST_DATA_ROW_SELECTOR).last().get(0);
         const ganttViewRowElement = this.$element.find(GANTT_VIEW_ROW_SELECTOR).get(0);
-        assert.equal(treeListRowElement.getBoundingClientRect().height, ganttViewRowElement.getBoundingClientRect().height, "row heights are equal");
+        assert.roughEqual(treeListRowElement.getBoundingClientRect().height, ganttViewRowElement.getBoundingClientRect().height, 0.001, "row heights are equal");
     });
 });
 
@@ -337,9 +337,13 @@ QUnit.module("Options", moduleConfig, () => {
         assert.equal(getFirstHeaderTitle(), "Sun, 17 Feb - Sat, 23 Feb", "is weeks scale type");
         this.instance.option("scaleType", "months");
         assert.equal(getFirstHeaderTitle(), "January", "is months scale type");
+        this.instance.option("scaleType", "quarters");
+        assert.equal(getFirstHeaderTitle(), "Q1", "is quarters scale type");
+        this.instance.option("scaleType", "years");
+        assert.equal(getFirstHeaderTitle(), "2019", "is years scale type");
 
         this.instance.option("tasks.dataSource", [{ "id": 0, "title": "t", "start": "2019-02-21", "end": "2019-02-26" }]);
-        assert.equal(getFirstHeaderTitle(), "January", "is still months scale type");
+        assert.equal(getFirstHeaderTitle(), "2019", "is still years scale type");
         this.instance.option("scaleType", "auto");
         assert.equal(getFirstHeaderTitle(), "Sun, 17 Feb", "is days scale type (auto)");
     });
@@ -358,6 +362,19 @@ QUnit.module("Events", moduleConfig, () => {
         this.instance.option("selectedRowKey", key);
         this.clock.tick();
         assert.equal(keyFromEvent, key);
+    });
+    test("onContentReady", (assert) => {
+        const onContentReadyHandler = sinon.stub();
+        const options = {
+            tasks: {
+                dataSource: tasks
+            },
+            onContentReady: onContentReadyHandler
+        };
+        this.createInstance(options);
+        this.clock.tick();
+
+        assert.equal(onContentReadyHandler.callCount, 1, "onContentReadyHandler was called 1 times");
     });
 });
 

@@ -6,6 +6,7 @@ import intlNumberLocalization from "localization/intl/number";
 import { locale } from "localization/core";
 import { disableIntl } from "localization";
 import config from "core/config";
+import ExcelJSLocalizationFormatTests from "../DevExpress.exporter/exceljsParts/exceljs.format.tests.js";
 
 if(Intl.__disableRegExpRestore) {
     Intl.__disableRegExpRestore();
@@ -512,55 +513,54 @@ QUnit.module("Intl localization", {
         });
 
         QUnit.test("parse", assert => {
-            const currentDate = new Date();
             const testData = [
-                { format: "shortDate", date: new Date(2016, 10, 17) },
-                { format: "shortDate", date: new Date(2016, 11, 31) },
-                { format: "shortDate", date: new Date(2016, 0, 1) },
+                { format: "shortDate", date: () => new Date(2016, 10, 17) },
+                { format: "shortDate", date: () => new Date(2016, 11, 31) },
+                { format: "shortDate", date: () => new Date(2016, 0, 1) },
 
-                { format: "shortTime", date: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 4, 22) },
-                { format: "shortTime", date: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 18, 56) },
-                { format: "shortTime", date: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0) },
-                { format: "shortTime", date: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 12, 59) },
+                { format: "shortTime", date: () => { const currentDate = new Date(); return new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 4, 22); } },
+                { format: "shortTime", date: () => { const currentDate = new Date(); return new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 18, 56); } },
+                { format: "shortTime", date: () => { const currentDate = new Date(); return new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0); } },
+                { format: "shortTime", date: () => { const currentDate = new Date(); return new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 12, 59); } },
 
-                { format: "shortDateshortTime", date: new Date(2016, 11, 31, 4, 44) },
-                { format: "shortDateshortTime", date: new Date(2016, 11, 31, 12, 32) },
-                { format: "shortDateshortTime", date: new Date(2016, 0, 1, 0, 16) },
-                { format: "shortDateshortTime", date: new Date(2016, 0, 1, 12, 48) },
+                { format: "shortDateshortTime", date: () => new Date(2016, 11, 31, 4, 44) },
+                { format: "shortDateshortTime", date: () => new Date(2016, 11, 31, 12, 32) },
+                { format: "shortDateshortTime", date: () => new Date(2016, 0, 1, 0, 16) },
+                { format: "shortDateshortTime", date: () => new Date(2016, 0, 1, 12, 48) },
 
-                { format: "longtime", date: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 4, 22, 15) },
-                { format: "longtime", date: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 18, 56, 56) },
-                { format: "longtime", date: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0) },
-                { format: "longtime", date: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 12, 59, 59) },
+                { format: "longtime", date: () => { const currentDate = new Date(); return new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 4, 22, 15); } },
+                { format: "longtime", date: () => { const currentDate = new Date(); return new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 18, 56, 56); } },
+                { format: "longtime", date: () => { const currentDate = new Date(); return new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 0, 0, 0); } },
+                { format: "longtime", date: () => { const currentDate = new Date(); return new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 12, 59, 59); } },
 
-                { format: "longDate", date: new Date(2016, 10, 17) },
-                { format: "longDate", date: new Date(2016, 11, 31) },
-                { format: "longDate", date: new Date(2016, 0, 1) },
+                { format: "longDate", date: () => new Date(2016, 10, 17) },
+                { format: "longDate", date: () => new Date(2016, 11, 31) },
+                { format: "longDate", date: () => new Date(2016, 0, 1) },
 
-                { format: "longDateLongTime", date: new Date(2016, 11, 31, 4, 44) },
-                { format: "longDateLongTime", date: new Date(2016, 11, 31, 12, 32) },
-                { format: "longDateLongTime", date: new Date(2016, 0, 1, 0, 16) },
-                { format: "longDateLongTime", date: new Date(2016, 0, 1, 12, 48) },
+                { format: "longDateLongTime", date: () => new Date(2016, 11, 31, 4, 44) },
+                { format: "longDateLongTime", date: () => new Date(2016, 11, 31, 12, 32) },
+                { format: "longDateLongTime", date: () => new Date(2016, 0, 1, 0, 16) },
+                { format: "longDateLongTime", date: () => new Date(2016, 0, 1, 12, 48) },
 
-                { format: "monthAndYear", date: new Date(2016, 9, 1) },
-                { format: "monthAndDay", date: new Date(currentDate.getFullYear(), 9, 17) },
+                { format: "monthAndYear", date: () => new Date(2016, 9, 1) },
+                { format: "monthAndDay", date: () => { const currentDate = new Date(); return new Date(currentDate.getFullYear(), 9, 17); } },
 
-                { format: "year", date: new Date(2013, 0, 1) },
-                { format: "shortyear", date: new Date(2013, 0, 1) },
-                { format: "month", date: new Date(currentDate.getFullYear(), 9, 1) },
-                { format: "day", date: new Date(currentDate.getFullYear(), currentDate.getMonth(), 17) },
-                { format: "hour", date: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 16) },
-                { format: "minute", date: new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), currentDate.getHours(), 56) }
+                { format: "year", date: () => new Date(2013, 0, 1) },
+                { format: "shortyear", date: () => new Date(2013, 0, 1) },
+                { format: "month", date: () => { const currentDate = new Date(); return new Date(currentDate.getFullYear(), 9, 1); } },
+                { format: "day", date: () => { const currentDate = new Date(); return new Date(currentDate.getFullYear(), currentDate.getMonth(), 17); } },
+                { format: "hour", date: () => { const currentDate = new Date(); return new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), 16); } },
+                { format: "minute", date: () => { const currentDate = new Date(); return new Date(currentDate.getFullYear(), currentDate.getMonth(), currentDate.getDate(), currentDate.getHours(), 56); } }
             ];
 
             testData.forEach(config => {
                 const format = config.format;
-                const date = config.date;
 
                 if(localeId.substr(0, 2) === "el" && format === "monthAndYear") {
                     return;
                 }
 
+                const date = config.date();
                 let formattedDate = dateLocalization.format(date, format);
                 let parsedDate = dateLocalization.parse(formattedDate, format);
 
@@ -733,3 +733,12 @@ QUnit.module("Intl localization", {
 
     });
 });
+
+ExcelJSLocalizationFormatTests.runCurrencyTests([
+    { value: "USD", expected: "$#,##0_);\\($#,##0\\)" },
+    { value: "RUB", expected: "RUB#,##0_);\\(RUB#,##0\\)" },
+    { value: "JPY", expected: "¥#,##0_);\\(¥#,##0\\)" },
+    { value: "KPW", expected: "KPW#,##0_);\\(KPW#,##0\\)" },
+    { value: "LBP", expected: "LBP#,##0_);\\(LBP#,##0\\)" },
+    { value: "SEK", expected: "SEK#,##0_);\\(SEK#,##0\\)" }
+]);

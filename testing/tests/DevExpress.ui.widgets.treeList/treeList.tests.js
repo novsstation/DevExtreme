@@ -21,6 +21,8 @@ import pointerEvents from "events/pointer";
 import { DataSource } from "data/data_source/data_source";
 import { TreeListWrapper } from "../../helpers/wrappers/dataGridWrappers.js";
 import ArrayStore from 'data/array_store';
+import TreeList from "ui/tree_list/ui.tree_list";
+import pointerMock from "../../helpers/pointerMock.js";
 
 fx.off = true;
 
@@ -925,6 +927,38 @@ QUnit.test("Highlight searchText in expandable column", function(assert) {
     assert.equal(treeList.$element().find(searchTextSelector).length, 1);
 });
 
+// T835655
+QUnit.test("Change searchPanel.text", function(assert) {
+    var treeList = createTreeList({
+            dataSource: [
+                { id: 1, parentId: 0, name: "Name 1", age: 16 },
+                { id: 2, parentId: 1, name: "Name 2", age: 17 },
+                { id: 3, parentId: 2, name: "Name", age: 18 }
+            ],
+            searchPanel: {
+                visible: true,
+                text: "3"
+            }
+        }),
+        searchPanelSelector = ".dx-treelist-search-panel",
+        $searchInput;
+
+    this.clock.tick(30);
+
+    // act, assert
+    $searchInput = treeList.$element().find(searchPanelSelector).find("input");
+
+    assert.equal($searchInput.val(), "3", "search text");
+
+    // act
+    treeList.option("searchPanel.text", "new text");
+
+    $searchInput = treeList.$element().find(searchPanelSelector).find("input");
+
+    // assert
+    assert.equal($searchInput.val(), "new text", "search text");
+});
+
 QUnit.module("Expand/Collapse rows");
 
 // T627926
@@ -1236,7 +1270,7 @@ QUnit.test("TreeList should focus only one focused row (T827201)", function(asse
 
     // assert
     assert.equal(rowsViewWrapper.getFocusedRow().length, 1, "Only one row is focused");
-    assert.ok(rowsViewWrapper.isRowFocused(treeList.getRowIndexByKey(9)), "Row with key 9 is focused");
+    assert.ok(rowsViewWrapper.isFocusedRow(treeList.getRowIndexByKey(9)), "Row with key 9 is focused");
 });
 
 QUnit.test("TreeList navigateTo", function(assert) {
@@ -1590,4 +1624,73 @@ QUnit.test("TreeList should filter data with unreachable items (T816921)", funct
 
     // assert
     assert.equal(treeList.getVisibleRows().length, 2, "filtered row count");
+});
+
+
+QUnit.module("Row dragging", {
+    beforeEach: function() {
+        this.clock = sinon.useFakeTimers();
+    },
+    afterEach: function() {
+        this.clock.restore();
+    }
+});
+
+// T831020
+QUnit.test("The draggable row should have correct markup when defaultOptions is specified", function(assert) {
+    // arrange
+    TreeList.defaultOptions({
+        options: {
+            filterRow: {
+                visible: true
+            },
+            groupPanel: {
+                visible: true
+            },
+            filterPanel: {
+                visible: true
+            }
+        }
+    });
+
+    try {
+        const treeList = createTreeList({
+            dataSource: [
+                { ID: 1, Head_ID: 0, Name: "John" },
+                { ID: 2, Head_ID: 0, Name: "Alex" }
+            ],
+            keyExpr: "ID",
+            parentIdExpr: "Head_ID",
+            rowDragging: {
+                allowReordering: true
+            }
+        });
+
+        this.clock.tick();
+
+        // act
+        pointerMock(treeList.getCellElement(0, 0)).start().down().move(100, 100);
+
+        // assert
+        const $draggableRow = $("body").children(".dx-sortable-dragging");
+        assert.strictEqual($draggableRow.length, 1, "has draggable row");
+
+        const $visibleView = $draggableRow.find(".dx-gridbase-container").children(":visible");
+        assert.strictEqual($visibleView.length, 1, "markup of the draggable row is correct");
+        assert.ok($visibleView.hasClass("dx-treelist-rowsview"), "rowsview is visible");
+    } finally {
+        TreeList.defaultOptions({
+            options: {
+                filterRow: {
+                    visible: false
+                },
+                groupPanel: {
+                    visible: false
+                },
+                filterPanel: {
+                    visible: false
+                }
+            }
+        });
+    }
 });

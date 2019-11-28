@@ -10,6 +10,7 @@ import devices from "core/devices";
 import { DataSource } from "data/data_source/data_source";
 import dataGridMocks from "../../helpers/dataGridMocks.js";
 import dateLocalization from "localization/date";
+import messageLocalization from "localization/message";
 
 import "ui/data_grid/ui.data_grid";
 import "../../../node_modules/hogan.js/dist/hogan-3.0.2.js";
@@ -255,7 +256,7 @@ QUnit.test('Column widths reset after change columns count and render', function
 
     // act
     this.columnHeadersView.render(testElement);
-    this.columnHeadersView.setColumnWidths([200, 100]);
+    this.columnHeadersView.setColumnWidths({ widths: [200, 100] });
 
     // assert
     assert.deepEqual(this.columnHeadersView.getColumnWidths(), [200, 100]);
@@ -278,11 +279,11 @@ QUnit.test('Scroll position after set column widths', function(assert) {
 
     // act
     this.columnHeadersView.render(testElement);
-    this.columnHeadersView.setColumnWidths([400, 100]);
+    this.columnHeadersView.setColumnWidths({ widths: [400, 100] });
     this.columnHeadersView.scrollTo({ left: 50 });
 
     // act
-    this.columnHeadersView.setColumnWidths([200, 200]);
+    this.columnHeadersView.setColumnWidths({ widths: [200, 200] });
 
     // assert
     $scrollContainer = this.columnHeadersView.element().find(".dx-datagrid-scroll-container");
@@ -512,7 +513,8 @@ QUnit.test('Draw filterRow', function(assert) {
 
     // assert
     var inputs = this.columnHeadersView.element().find('input');
-    assert.equal($filterCell.attr('aria-label'), 'Column ' + this.columns[0].caption + ', Filter cell');
+
+    assert.equal($filterCell.attr('aria-label'), messageLocalization.format("dxDataGrid-ariaFilterCell"), 'Filter cell aria-label');
     assert.equal(inputs.length, 2, 'inputs count');
     assert.equal(inputs.eq(0).css("textAlign"), "left", "left alignment");
     assert.equal(inputs.eq(1).css("textAlign"), "right", "right alignment");
