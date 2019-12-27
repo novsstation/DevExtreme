@@ -377,6 +377,51 @@ configs.forEach(config => {
             wrapper.checkEventLog([], 'after expandAll');
         });
 
+        QUnit.test('all.selected: false -> selectItem(0) -> expandAll 2', function(assert) {
+            let wrapper = createWrapper(config, {}, [
+                { id: 0, text: 'item1', parentId: ROOT_ID, selected: false, expanded: config.expanded },
+                { id: 1, text: 'item1_1', parentId: 0, selected: false, expanded: config.expanded }]);
+            wrapper.instance.selectItem(0);
+
+            let expectedKeys = [0];
+            let expectedNodes = [0];
+            if(config.selectionMode === 'multiple') {
+                if(config.selectNodesRecursive) {
+                    expectedKeys = [0, 1];
+                    expectedNodes = [0, 1];
+                }
+                if(!config.expanded && isLazyDataSourceMode(wrapper)) {
+                    // unexpected result
+                    expectedKeys = [0];
+                }
+            }
+            if(!config.expanded) {
+                // unexpected result
+                expectedNodes = [0];
+            }
+            wrapper.checkSelectedKeys(expectedKeys, 'after selectItem(0)');
+            wrapper.checkSelectedNodes(expectedNodes, 'after selectItem(0)');
+            wrapper.checkEventLog(['itemSelectionChanged', 'selectionChanged'], 'after selectItem(0)');
+            wrapper.clearEventLog();
+
+            wrapper.instance.expandAll();
+            expectedNodes = [0];
+            if(config.selectionMode === 'multiple') {
+                if(!config.expanded && isLazyDataSourceMode(wrapper)) {
+                    // unexpected result
+                    if(config.selectNodesRecursive) {
+                        expectedKeys = [0, 1];
+                    }
+                }
+                if(config.selectNodesRecursive) {
+                    expectedNodes = [0, 1];
+                }
+            }
+            wrapper.checkSelectedKeys(expectedKeys, 'after expandAll');
+            wrapper.checkSelectedNodes(expectedNodes, 'after expandAll');
+            wrapper.checkEventLog([], 'after expandAll');
+        });
+
         QUnit.test('all.selected: false -> selectItem(1) -> expandAll', function(assert) {
             let wrapper = createWrapper(config, {}, [
                 { id: 0, text: 'item1', parentId: ROOT_ID, selected: false, expanded: config.expanded },
