@@ -446,12 +446,13 @@ const TreeViewBase = HierarchicalCollectionWidget.inherit({
     _initSelectedItems: commonUtils.noop,
     _syncSelectionOptions: commonUtils.asyncNoop,
 
-    _fireSelectionChanged: function() {
+    _fireSelectionChanged: function(oldSelectedKeys, newSelectedKeys) {
         const selectionChangePromise = this._selectionChangePromise;
+        const keysDiff = this._getSelectedKeysDiff(oldSelectedKeys, newSelectedKeys);
         when(selectionChangePromise).done((function() {
             this._createActionByOption('onSelectionChanged', {
                 excludeValidators: ['disabled', 'readOnly']
-            })();
+            })({ addedItems: keysDiff.toSelect, removedItems: keysDiff.toDeselect });
         }).bind(this));
     },
 
@@ -1306,9 +1307,12 @@ const TreeViewBase = HierarchicalCollectionWidget.inherit({
     },
 
     _toggleSelectAll: function(args) {
+        const oldSelectedKeys = this.getSelectedNodesKeys();
         this._dataAdapter.toggleSelectAll(args.value);
         this._updateItemsUI();
-        this._fireSelectionChanged();
+
+        const newSelectedKeys = this.getSelectedNodesKeys();
+        this._fireSelectionChanged(oldSelectedKeys, newSelectedKeys);
     },
 
     _renderCheckBox: function($node, node) {
@@ -1408,8 +1412,10 @@ const TreeViewBase = HierarchicalCollectionWidget.inherit({
     },
 
     _updateItemSelection: function(value, itemElement, dxEvent) {
+        const oldSelectedKeys = this.getSelectedNodesKeys();
         if(this._setItemSelection(value, itemElement, dxEvent)) {
-            this._fireSelectionChanged();
+            const newSelectedKeys = this.getSelectedNodesKeys();
+            this._fireSelectionChanged(oldSelectedKeys, newSelectedKeys);
         }
     },
 
@@ -1953,8 +1959,9 @@ const TreeViewBase = HierarchicalCollectionWidget.inherit({
             this._setItemSelection(true, key);
         });
 
-        if(oldSelectedKeys !== this.getSelectedNodesKeys()) {
-            this._fireSelectionChanged();
+        const newSelectedKeys = this.getSelectedNodesKeys();
+        if(oldSelectedKeys !== newSelectedKeys) {
+            this._fireSelectionChanged(oldSelectedKeys, newSelectedKeys);
         }
         return this._dataAdapter.getSelectedNodesKeys();
     },
