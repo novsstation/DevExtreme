@@ -1,13 +1,13 @@
 import 'common.css!';
-import device from 'core/devices';
-import domAdapter from 'core/dom_adapter';
-import browser from 'core/utils/browser';
 import resizeCallbacks from 'core/utils/resize_callbacks';
 import typeUtils from 'core/utils/type';
+import browser from 'core/utils/browser';
+import device from 'core/devices';
+import domAdapter from 'core/dom_adapter';
 import { extend } from 'core/utils/extend';
-import { triggerHidingEvent, triggerShownEvent } from 'events/visibility_change';
-import 'generic_light.css!';
 import $ from 'jquery';
+import { triggerHidingEvent, triggerShownEvent } from 'events/visibility_change';
+import 'ui/text_area';
 import 'ui/autocomplete';
 import 'ui/calendar';
 import 'ui/date_box';
